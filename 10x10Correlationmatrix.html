@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<style>
+.axis path,
+.axis line {
+  fill: none;
+  stroke: none;
+}
+
+#chart {
+  width: 100%;
+  height: 100%;
+  min-width: 500px;
+  min-height: 500px;
+  position: absolute;
+}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+
+<body>
+<svg id="chart"></svg>
+<script type="text/javascript">
+
+    var margin = { top: 100, right: 50, bottom: 50, left: 100 },
+        dim = Math.min(parseInt(d3.select("#chart").style("width")), parseInt(d3.select("#chart").style("height")))
+        width = dim - margin.left - margin.right,
+        height = dim - margin.top - margin.bottom,
+        categories = 10,
+        gridSize = width / categories,
+        colors = ['rgb(0,0,255)','rgb(51,51,255)',
+                  'rgb(102,102,255)','rgb(153,153,255)',
+                  'rgb(204,204,255)','rgb(255,255,255)',
+                  'rgb(255,204,204)','rgb(255,153,153)',
+                  'rgb(255,102,102)','rgb(255,51,51)',
+                  'rgb(255,0,0)'];
+
+    var xScale = d3.scale.ordinal().rangeBands([0, width]);
+    var yScale = d3.scale.ordinal().rangeBands([0, height]);
+    var xAxis = d3.svg.axis().orient("top");
+    var yAxis = d3.svg.axis().orient("left");
+
+    var svg = d3.select("#chart")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        d3.csv("correlationMatrix.csv", format, function(error, data){
+
+  var color = d3.scale.quantile()
+                  .domain([-.1, 1])
+                  .range(colors);
+
+  var viz = svg.selectAll(".correlation")
+              .data(data)
+              .enter().append("rect")
+                  .attr("class", "correlation")
+                  .attr("x", function(d, i) {return gridSize * Math.floor(i / categories) ; })
+                  .attr("y", function(d, i) {return gridSize * (i % categories) ; })
+                  .attr("width",gridSize)
+                  .attr("height", gridSize)
+                  .style("fill", function(d){return color(d.value) ; })
+
+    var names=['Number','Total','Hp','Atk','Def','SpAtk',
+           'SpDef','Speed','Type1','Type2'];
+
+    xScale.domain(names);
+    xAxis.scale(xScale);
+    yScale.domain(names);
+    yAxis.scale(yScale);
+
+    svg.append("g")
+          .attr("class", "x axis")
+          .call(xAxis)
+          .selectAll("text")
+              .attr("y", -10)
+              .attr("dy", ".5em")
+              .attr("x", 0)
+              .attr("transform", "rotate(-45)")
+              .style("text-anchor", "start")
+
+    svg.append("g")
+          .attr("class", "y axis")
+          .call(yAxis)
+          .selectAll("text")
+              .style("text-anchor", "end");
+
+});
+
+function format(d) {
+  d.value = +d.value;
+  return d;
+}
+
+</script>
+</body>

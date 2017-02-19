@@ -1,0 +1,359 @@
+<html>
+
+<body>
+    <title>Bivariate Scatterplot</title>
+    <style>
+        body {
+            font: 12px Arial;
+        }
+
+        path {
+            stroke: steelblue;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: grey;
+            stroke-width: 1;
+            shape-rendering: crispEdges;
+        }
+
+        .selected {
+            fill: #afa2dc;
+            stroke: #2f225d;
+        }
+
+        .axis {
+            font: 10px sans-serif;
+        }
+
+        p {
+            font: 12px sans-serif;
+            margin: 0 0 2px 0;
+            padding: 0;
+        }
+
+        .brush .extent {
+            stroke: #fff;
+            fill-opacity: .125;
+            shape-rendering: crispEdges;
+        }
+    </style>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <h4>X Value<select id = "x">
+    <option value="ds0"selected="selected">Number</option>
+    <option value="ds1">Total</option>
+    <option value="ds2">Hp</option>
+    <option value="ds3">Attack</option>
+    <option value="ds4">Defense</option>
+    <option value="ds5">Sp. Attack</option>
+    <option value="ds6">Sp. Defense</option>
+    <option value="ds7">Speed</option>
+    <option value="ds8">Type1</option>
+    <option value="ds9">Type2</option>
+    </select>
+    <h4>Y Value<select id = "y">
+    <option value="ds0">Number</option>
+    <option value="ds1" selected="selected">Total</option>
+    <option value="ds2">Hp</option>
+    <option value="ds3">Attack</option>
+    <option value="ds4">Defense</option>
+    <option value="ds5">Sp. Attack</option>
+    <option value="ds6">Sp. Defense</option>
+    <option value="ds7">Speed</option>
+    <option value="ds8">Type1</option>
+    <option value="ds9">Type2</option>
+    </select>
+    <script>
+    d3.csv("pokemondata.csv", function(error, data) {
+    data.forEach(function(d) {
+        d.Number = +d.Number;
+        d.Total = +d.Total;
+        d.pHp = +d.Hp;
+        d.pAtk = +d.Atk;
+        d.pDef = +d.Def;
+        d.pSpAtk = +d.SpAtk;
+        d.pSpDef = +d.SpDef;
+        d.pSpeed = +d.Speed;
+        d.pType1 = +d.Type1;
+        d.pType2 = +d.Type2;
+    });
+    function plot(){
+    var xMenu = document.getElementById("x");
+    var xVar = xMenu.options[xMenu.selectedIndex].value;
+    var xLabel = xMenu.options[xMenu.selectedIndex].text;
+    if(xLabel == "Number"){
+      xValue = function(d) { return x(d.Number); }
+      xV = function(d) { return (d.Number); }
+      xDomain = (d3.extent(data, function(d) { return d.Number-5; }));
+    }
+    if(xLabel == "Total"){
+      xValue = function(d) { return x(d.Total); }
+      xDomain = (d3.extent(data, function(d) { return d.Total-5; }));
+    }
+    if(xLabel == "Hp"){
+      xValue = function(d) { return x(d.Hp); }
+      xDomain = (d3.extent(data, function(d) { return d.Hp-5; }));
+    }
+    if(xLabel == "Attack"){
+      xValue = function(d) { return x(d.Atk); }
+      xDomain = (d3.extent(data, function(d) { return d.Atk-5; }));
+    }
+    if(xLabel == "Defense"){
+      xValue = function(d) { return x(d.Def); }
+      xDomain = (d3.extent(data, function(d) { return d.Def-5; }));
+    }
+    if(xLabel == "Sp. Attack"){
+      xValue = function(d) { return x(d.SpAtk); }
+      xDomain = (d3.extent(data, function(d) { return d.SpAtk-5; }));
+    }
+    if(xLabel == "Sp. Defense"){
+      xValue = function(d) { return x(d.SpDef); }
+      xDomain = (d3.extent(data, function(d) { return d.SpDef-5; }));
+    }
+    if(xLabel == "Speed"){
+      xValue = function(d) { return x(d.Speed); }
+      xDomain = (d3.extent(data, function(d) { return d.Speed-5; }));
+    }
+    if(xLabel == "Type1"){
+      xValue = function(d) { return x(d.Type1); }
+      xDomain = (d3.extent(data, function(d) { return d.Type1-5; }));
+    }
+    if(xLabel == "Type2"){
+      xValue = function(d) { return x(d.Type2); }
+      xDomain = (d3.extent(data, function(d) { return d.Type2-5; }));
+    }
+
+    var yMenu = document.getElementById("y");
+    var yVar = yMenu.options[yMenu.selectedIndex].value;
+    var yLabel = yMenu.options[yMenu.selectedIndex].text;
+    if(yLabel == "Number"){
+      yValue = function(d) { return y(d.Number); }
+      yDomain = ([0, d3.max(data, function(d) { return d.Number-5; })]);
+    }
+    if(yLabel == "Total"){
+      yValue = function(d) { return y(d.Total); }
+      yDomain = ([0, d3.max(data, function(d) { return d.Total-5; })]);
+    }
+    if(yLabel == "Hp"){
+      yValue = function(d) { return y(d.Hp); }
+      yDomain = ([0, d3.max(data, function(d) { return d.Hp-5; })]);
+    }
+    if(yLabel == "Attack"){
+      yValue = function(d) { return y(d.Atk); }
+      yDomain = ([0, d3.max(data, function(d) { return d.Atk-5; })]);
+    }
+    if(yLabel == "Defense"){
+      yValue = function(d) { return y(d.Def); }
+      yDomain = ([0, d3.max(data, function(d) { return d.Def-5; })]);
+    }
+    if(yLabel == "Sp. Attack"){
+      yValue = function(d) { return y(d.SpAtk); }
+      yDomain = ([0, d3.max(data, function(d) { return d.SpAtk-5; })]);
+    }
+    if(yLabel == "Sp. Defense"){
+      yValue = function(d) { return y(d.SpDef); }
+      yDomain = ([0, d3.max(data, function(d) { return d.SpDef-5; })]);
+    }
+    if(yLabel == "Speed"){
+      yValue = function(d) { return y(d.Speed); }
+      yDomain = ([0, d3.max(data, function(d) { return d.Speed-5; })]);
+    }
+    if(yLabel == "Type1"){
+      yValue = function(d) { return y(d.Type1); }
+      yDomain = ([0, d3.max(data, function(d) { return d.Type1-5; })]);
+    }
+    if(yLabel == "Type2"){
+      yValue = function(d) { return y(d.Type2); }
+      yDomain = ([0, d3.max(data, function(d) { return d.Type2-5; })]);
+    }
+
+    var margin = {top: 20, right: 20, bottom: 30, left: 40},
+        width = 500 - margin.left - margin.right,
+        height = 250 - margin.top - margin.bottom;
+
+    var x = d3.scale.linear().range([0, width]);
+    var y = d3.scale.linear().range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left");
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform",
+        "translate(" + margin.left + "," + margin.top + ")");
+
+        x.domain(xDomain);
+        y.domain(yDomain);
+
+      var dot = svg.selectAll("dot")
+               .data(data)
+               .enter().append("circle")
+               .attr("class", "dot")
+               .attr("clip-path", "url(#clip)")
+               .style("fill", "blue")
+               .attr("r", 3.5)
+               .attr("cx", xValue)
+               .attr("cy", yValue)
+               .attr("opacity", 0.7)
+               .style("fill", "#4292c6");
+
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("clip-path", "url(#clip)")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis);
+            svg.append("text")
+           .attr("class", "xlabel")
+           .attr("text-anchor", "middle")
+           .attr("x", width / 2)
+           .attr("y", height + margin.bottom)
+           .text(xLabel);
+
+        svg.append("g")
+            .attr("class", "y axis")
+            .call(yAxis);
+            svg.append("text")
+            .attr("class", "ylabel")
+        	  .attr("y", -3 - margin.left)
+        	  .attr("x", 0 - (height / 2))
+        	  .attr("dy", "1em")
+        	  .attr("transform", "rotate(-90)")
+        	  .style("text-anchor", "middle")
+        	  .text(yLabel);
+
+    var brush = d3.svg.brush()
+      .x(x)
+      .on("brush", brushmove);
+
+    svg.append("g")
+    .attr("class", "brush")
+    .call(brush)
+    .selectAll('rect')
+    .attr('height', height);
+
+    function brushmove() {
+      var extent = brush.extent();
+      dot.classed("selected", function(d) {
+        if(xLabel == "Number"){
+          is_brushed = extent[0] <= d.Number && d.Number <= extent[1];
+        }
+        if(xLabel == "Total"){
+          is_brushed = extent[0] <= d.Total && d.Total <= extent[1];
+        }
+        if(xLabel == "Hp"){
+          is_brushed = extent[0] <= d.Hp && d.Hp <= extent[1];
+        }
+        if(xLabel == "Attack"){
+          is_brushed = extent[0] <= d.Atk && d.Atk <= extent[1];
+        }
+        if(xLabel == "Defense"){
+          is_brushed = extent[0] <= d.Def && d.Def <= extent[1];
+        }
+        if(xLabel == "Sp. Attack"){
+          is_brushed = extent[0] <= d.SpAtk && d.SpAtk <= extent[1];
+        }
+        if(xLabel == "Sp. Defense"){
+          is_brushed = extent[0] <= d.SpDef && d.SpDef <= extent[1];
+        }
+        if(xLabel == "Speed"){
+          is_brushed = extent[0] <= d.Speed && d.Speed <= extent[1];
+        }
+        if(xLabel == "Type1"){
+          is_brushed = extent[0] <= d.Type1 && d.Type1 <= extent[1];
+        }
+        if(xLabel == "Type2"){
+          is_brushed = extent[0] <= d.Type2 && d.Type2 <= extent[1];
+        }
+      return is_brushed;
+      });
+    }
+  }
+          plot();
+              d3.select('#x')
+              .on('change', function() {
+              var s = d3.selectAll('svg');
+              s.remove()
+              var selected = this.value;
+              if(this.value == "ds0"){
+                plot()
+              }
+              if(this.value == "ds1"){
+                plot()
+              }
+              if(this.value == "ds2"){
+                plot()
+              }
+              if(this.value == "ds3"){
+                plot()
+              }
+              if(this.value == "ds4"){
+                plot()
+              }
+              if(this.value == "ds5"){
+                plot()
+              }
+              if(this.value == "ds6"){
+                plot()
+              }
+              if(this.value == "ds7"){
+                plot()
+              }
+              if(this.value == "ds8"){
+                plot()
+              }
+              if(this.value == "ds9"){
+                plot()
+              }
+            });
+            d3.select('#y')
+              .on('change', function() {
+              var s = d3.selectAll('svg');
+              s.remove()
+              var selected = this.value;
+              if(this.value == "ds0"){
+                plot()
+              }
+              if(this.value == "ds1"){
+                plot()
+              }
+              if(this.value == "ds2"){
+                plot()
+              }
+              if(this.value == "ds3"){
+                plot()
+              }
+              if(this.value == "ds4"){
+                plot()
+              }
+              if(this.value == "ds5"){
+                plot()
+              }
+              if(this.value == "ds6"){
+                plot()
+              }
+              if(this.value == "ds7"){
+                plot()
+              }
+              if(this.value == "ds8"){
+                plot()
+              }
+              if(this.value == "ds9"){
+                plot()
+              }
+            });
+    });
+    </script>
+    <div id="pokemon" class="graph"></div>
+  </body>
+</html>

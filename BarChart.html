@@ -1,0 +1,519 @@
+<html>
+
+<body>
+    <title>Pokemon Data</title>
+    <style>
+        .d3-tip {
+            line-height: 1;
+            font-weight: bold;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            border-radius: 2px;
+        }
+        
+        path {
+            stroke: steelblue;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: grey;
+            stroke-width: 1;
+            shape-rendering: crispEdges;
+        }
+        .d3-tip:after {
+            box-sizing: border-box;
+            display: inline;
+            font-size: 10px;
+            width: 100%;
+            line-height: 1;
+            color: rgba(0, 0, 0, 0.8);
+            content: "\25BC";
+            position: absolute;
+            text-align: center;
+        }
+
+        .selected {
+          fill: red;
+          stroke: red;
+        }
+
+        .d3-tip.n:after {
+            margin: -1px 0 0 0;
+            top: 100%;
+            left: 0;
+        }
+
+        .bar rect {
+            fill: steelblue;
+            shape-rendering: crispEdges;
+        }
+
+        .bar rect:hover {
+            fill: rgba(0, 0, 0, .8);
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+
+        .x.axis path {
+            display: none;
+        }
+
+        .resize path {
+            fill: #666;
+            fill-opacity: .8;
+            stroke: #000;
+            stroke-width: 1.5px;
+        }
+
+        .brush .extent {
+            stroke: #fff;
+            stroke-opacity: .6;
+            stroke-width: 2px;
+            fill-opacity: .1;
+            shape-rendering: crispEdges;
+        }
+    </style>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+    <script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <h4>X Value<select id = "x1">
+    <option value="ds1" selected="selected">Total</option>
+    <option value="ds2">Hp</option>
+    <option value="ds3">Attack</option>
+    <option value="ds4">Defense</option>
+    <option value="ds5">Sp. Attack</option>
+    <option value="ds6">Sp. Defense</option>
+    <option value="ds7">Speed</option>
+      </select>
+
+    <script>
+    function parser(d) {
+        d.pTotal = +d.Total;
+        d.pHp = +d.Hp;
+        d.pAtk = +d.Atk;
+        d.pDef = +d.Def;
+        d.pSpAtk = +d.SpAtk;
+        d.pSpDef = +d.SpDef;
+        d.pSpeed = +d.Speed;
+        return d;
+    }
+
+function plotbar(csvdata) {
+    var xMenu = document.getElementById("x1");
+    var xLabel = xMenu.options[xMenu.selectedIndex].text;
+    if(xLabel == "Total"){
+      var binsize = 50;
+      var minbin = 150;
+      var maxbin = 800;
+      var numbins = (maxbin - minbin) / binsize;
+
+      var binmargin = 1;
+      var margin = {top: 10, right: 30, bottom: 50, left: 60};
+      var width = 400 - margin.left - margin.right;
+      var height = 250 - margin.top - margin.bottom;
+
+      var xmin = minbin - 1
+      var xmax = maxbin + 1
+
+      histdata = new Array(numbins);
+      for (var i = 0; i < numbins; i++) {
+      histdata[i] = { numfill: 0, meta: "" };
+      }
+
+    // Fill histdata with y-axis values and meta data
+      csvdata.forEach(function(d) {
+      var bin = Math.floor((d.pTotal - minbin) / binsize);
+      if ((bin.toString() != "NaN") && (bin < histdata.length)) {
+        histdata[bin].numfill += 1;
+        histdata[bin].meta += "<tr><td>" + d.Number +
+          "</td><td>" +
+          d.pTotal.toFixed(1) + " Total</td></tr>";
+      }
+      });
+    }
+    if(xLabel == "Hp"){
+      var binsize = 10;
+      var minbin = 0;
+      var maxbin = 200;
+      var numbins = (maxbin - minbin) / binsize;
+
+      var binmargin = 1;
+      var margin = {top: 10, right: 30, bottom: 50, left: 60};
+      var width = 400 - margin.left - margin.right;
+      var height = 250 - margin.top - margin.bottom;
+
+      // Set the limits of the x axis
+      var xmin = minbin - 1
+      var xmax = maxbin + 1
+
+      histdata = new Array(numbins);
+      for (var i = 0; i < numbins; i++) {
+  		histdata[i] = { numfill: 0, meta: "" };
+  	}
+
+  	// Fill histdata with y-axis values and meta data
+      csvdata.forEach(function(d) {
+  		var bin = Math.floor((d.pHp - minbin) / binsize);
+  		if ((bin.toString() != "NaN") && (bin < histdata.length)) {
+  			histdata[bin].numfill += 1;
+  			histdata[bin].meta += "<tr><td>" + d.Number +
+  				"</td><td>" +
+  				d.pHp.toFixed(1) + " Hp</td></tr>";
+  		}
+      });
+    }
+    if(xLabel == "Attack"){
+      var binsize = 10;
+      var minbin = 0;
+      var maxbin = 200;
+      var numbins = (maxbin - minbin) / binsize;
+
+      var binmargin = 1;
+      var margin = {top: 10, right: 30, bottom: 50, left: 60};
+      var width = 400 - margin.left - margin.right;
+      var height = 250 - margin.top - margin.bottom;
+
+      // Set the limits of the x axis
+      var xmin = minbin - 1
+      var xmax = maxbin + 1
+
+      histdata = new Array(numbins);
+      for (var i = 0; i < numbins; i++) {
+      histdata[i] = { numfill: 0, meta: "" };
+      }
+
+      // Fill histdata with y-axis values and meta data
+      csvdata.forEach(function(d) {
+      var bin = Math.floor((d.pAtk - minbin) / binsize);
+      if ((bin.toString() != "NaN") && (bin < histdata.length)) {
+        histdata[bin].numfill += 1;
+        histdata[bin].meta += "<tr><td>" + d.Number +
+          "</td><td>" +
+          d.pAtk.toFixed(1) + " Hp</td></tr>";
+      }
+      });    }
+    if(xLabel == "Defense"){
+      var binsize = 10;
+      var minbin = 0;
+      var maxbin = 200;
+      var numbins = (maxbin - minbin) / binsize;
+
+      var binmargin = 1;
+      var margin = {top: 10, right: 30, bottom: 50, left: 60};
+      var width = 400 - margin.left - margin.right;
+      var height = 250 - margin.top - margin.bottom;
+
+      // Set the limits of the x axis
+      var xmin = minbin - 1
+      var xmax = maxbin + 1
+
+      histdata = new Array(numbins);
+      for (var i = 0; i < numbins; i++) {
+      histdata[i] = { numfill: 0, meta: "" };
+    }
+
+    // Fill histdata with y-axis values and meta data
+      csvdata.forEach(function(d) {
+      var bin = Math.floor((d.pDef - minbin) / binsize);
+      if ((bin.toString() != "NaN") && (bin < histdata.length)) {
+        histdata[bin].numfill += 1;
+        histdata[bin].meta += "<tr><td>" + d.Number +
+          "</td><td>" +
+          d.pDef.toFixed(1) + " Hp</td></tr>";
+      }
+      });
+    }
+    if(xLabel == "Sp. Attack"){
+      var binsize = 10;
+      var minbin = 0;
+      var maxbin = 200;
+      var numbins = (maxbin - minbin) / binsize;
+
+      var binmargin = 1;
+      var margin = {top: 10, right: 30, bottom: 50, left: 60};
+      var width = 400 - margin.left - margin.right;
+      var height = 250 - margin.top - margin.bottom;
+
+      // Set the limits of the x axis
+      var xmin = minbin - 1
+      var xmax = maxbin + 1
+
+      histdata = new Array(numbins);
+      for (var i = 0; i < numbins; i++) {
+      histdata[i] = { numfill: 0, meta: "" };
+      }
+
+      // Fill histdata with y-axis values and meta data
+      csvdata.forEach(function(d) {
+      var bin = Math.floor((d.pSpAtk - minbin) / binsize);
+      if ((bin.toString() != "NaN") && (bin < histdata.length)) {
+        histdata[bin].numfill += 1;
+        histdata[bin].meta += "<tr><td>" + d.Number +
+          "</td><td>" +
+          d.pSpAtk.toFixed(1) + " Hp</td></tr>";
+      }
+      });    }
+    if(xLabel == "Sp. Defense"){
+      var binsize = 10;
+      var minbin = 0;
+      var maxbin = 200;
+      var numbins = (maxbin - minbin) / binsize;
+
+      var binmargin = 1;
+      var margin = {top: 10, right: 30, bottom: 50, left: 60};
+      var width = 400 - margin.left - margin.right;
+      var height = 250 - margin.top - margin.bottom;
+
+      // Set the limits of the x axis
+      var xmin = minbin - 1
+      var xmax = maxbin + 1
+
+      histdata = new Array(numbins);
+      for (var i = 0; i < numbins; i++) {
+      histdata[i] = { numfill: 0, meta: "" };
+      }
+
+      // Fill histdata with y-axis values and meta data
+      csvdata.forEach(function(d) {
+      var bin = Math.floor((d.pSpDef - minbin) / binsize);
+      if ((bin.toString() != "NaN") && (bin < histdata.length)) {
+        histdata[bin].numfill += 1;
+        histdata[bin].meta += "<tr><td>" + d.Number +
+          "</td><td>" +
+          d.pSpDef.toFixed(1) + " Hp</td></tr>";
+      }
+      });    }
+    if(xLabel == "Speed"){
+      var binsize = 10;
+      var minbin = 0;
+      var maxbin = 200;
+      var numbins = (maxbin - minbin) / binsize;
+
+      var binmargin = 1;
+      var margin = {top: 10, right: 30, bottom: 50, left: 60};
+      var width = 400 - margin.left - margin.right;
+      var height = 250 - margin.top - margin.bottom;
+
+      // Set the limits of the x axis
+      var xmin = minbin - 1
+      var xmax = maxbin + 1
+
+      histdata = new Array(numbins);
+      for (var i = 0; i < numbins; i++) {
+      histdata[i] = { numfill: 0, meta: "" };
+      }
+
+      // Fill histdata with y-axis values and meta data
+      csvdata.forEach(function(d) {
+      var bin = Math.floor((d.pSpeed - minbin) / binsize);
+      if ((bin.toString() != "NaN") && (bin < histdata.length)) {
+        histdata[bin].numfill += 1;
+        histdata[bin].meta += "<tr><td>" + d.Number +
+          "</td><td>" +
+          d.pSpeed.toFixed(1) + " Hp</td></tr>";
+      }
+      });
+    }
+
+    // This scale is for determining the widths of the histogram bars
+    // Must start at 0 or else x(binsize a.k.a dx) will be negative
+    var x = d3.scale.linear()
+	  .domain([0, (xmax - xmin)])
+	  .range([0, width]);
+
+    // Scale for the placement of the bars
+    var x2 = d3.scale.linear()
+	  .domain([xmin, xmax])
+	  .range([0, width]);
+
+    var y = d3.scale.linear()
+	  .domain([0, d3.max(histdata, function(d) {
+						return d.numfill;
+						})])
+	  .range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+	  .scale(x2)
+	  .orient("bottom");
+    var yAxis = d3.svg.axis()
+	  .scale(y)
+	  .ticks(8)
+	  .orient("left");
+
+    var tip = d3.tip()
+  .attr('class', 'd3-tip')
+  .offset([-10, 0])
+  .html(function(d) {
+    return "<strong># of Pokemon:</strong> <span style='color:yellow'>" + d.numfill + "</span>";
+  })
+
+  var canvas = d3.select("body").append("svg")
+      .attr("class", "barchart")
+      .attr("width", "100%")
+      .attr("height", height + margin.top + margin.bottom)
+      .attr("y", height - height - 100)
+      .append("g");
+
+    var appending = canvas.selectAll('rect');
+
+    var svg = d3.select("#pokemon").append("svg")
+	  .attr("width", width + margin.left + margin.right)
+	  .attr("height", height + margin.top + margin.bottom)
+	  .append("g")
+	  .attr("transform", "translate(" + margin.left + "," +
+						margin.top + ")");
+
+    svg.call(tip);
+
+    // set up the bars
+    var bar = svg.selectAll(".bar")
+	  .data(histdata)
+	  .enter().append("g")
+	  .attr("class", "bar")
+    .attr("clip-path", "url(#clip)")
+	  .attr("transform", function(d, i) { return "translate(" +
+	       x2(i * binsize + minbin) + "," + y(d.numfill) + ")"; })
+         .on('mouseover', tip.show)
+        .on('mouseout', tip.hide)
+
+    // add rectangles of correct size at correct location
+    bar.append("rect")
+	  .attr("x", x(binmargin))
+	  .attr("width", x(binsize - 2 * binmargin))
+	  .attr("height", function(d) { return height - y(d.numfill); });
+
+    // add the x axis and x-label
+    svg.append("g")
+	  .attr("class", "x axis")
+    .attr("clip-path", "url(#clip)")
+	  .attr("transform", "translate(0," + height + ")")
+	  .call(xAxis);
+    svg.append("text")
+	  .attr("class", "xlabel")
+	  .attr("text-anchor", "middle")
+	  .attr("x", width / 2)
+	  .attr("y", height + margin.bottom)
+	  .text(xLabel);
+
+    // add the y axis and y-label
+    svg.append("g")
+	  .attr("class", "y axis")
+	  .attr("transform", "translate(0,0)")
+	  .call(yAxis);
+    svg.append("text")
+	  .attr("class", "ylabel")
+	  .attr("y", 0 - margin.left) // x and y switched due to rotation
+	  .attr("x", 0 - (height / 2))
+	  .attr("dy", "1em")
+	  .attr("transform", "rotate(-90)")
+	  .style("text-anchor", "middle")
+	  .text("# of Pokemon");
+
+    var brush = d3.svg.brush()
+      .x(x)
+      .on("brush", brushmove);
+
+    svg.append("g")
+    .attr("class", "brush")
+    .call(brush)
+    .selectAll('rect')
+    .attr('height', height);
+
+    function brushmove() {
+      var extent = brush.extent();
+      bar.classed("selected", function(d) {
+        if(xLabel == "Total"){
+          is_brushed = extent[0] <= d.pHp && d.pHp <= extent[1];
+        }
+        if(xLabel == "Hp"){
+          is_brushed = extent[0] <= d.pHp && d.pHp <= extent[1];
+        }
+        if(xLabel == "Attack"){
+          is_brushed = extent[0] <= d.Atk && d.atk <= extent[1];
+        }
+        if(xLabel == "Defense"){
+          is_brushed = extent[0] <= d.Def && d.Def <= extent[1];
+        }
+        if(xLabel == "Sp. Attack"){
+          is_brushed = extent[0] <= d.SpAtk && d.SpAtk <= extent[1];
+        }
+        if(xLabel == "Sp. Defense"){
+          is_brushed = extent[0] <= d.SpDef && d.SpDef <= extent[1];
+        }
+        if(xLabel == "Speed"){
+          is_brushed = extent[0] <= d.Speed && d.Speed <= extent[1];
+        }
+      return is_brushed;
+      });
+    }
+  }
+  // Read in .csv data and make graph
+  d3.csv("pokemondata.csv", parser,
+      function(error, csvdata) {
+  	   plotbar(csvdata);
+  });
+
+  d3.select('#x1')
+    .on('change', function() {
+      var s = d3.selectAll('svg');
+      s.remove();
+      var selected = this.value;
+      if(this.value == "ds1"){
+        d3.csv("pokemondata.csv", parser,
+            function(error, csvdata) {
+        	   plotbar(csvdata);
+        });
+      }
+      if(this.value == "ds2"){
+        d3.csv("pokemondata.csv", parser,
+            function(error, csvdata) {
+             plotbar(csvdata);
+        });
+      }
+      if(this.value == "ds3"){
+        d3.csv("pokemondata.csv", parser,
+            function(error, csvdata) {
+             plotbar(csvdata);
+        });
+      }
+      if(this.value == "ds4"){
+        d3.csv("pokemondata.csv", parser,
+            function(error, csvdata) {
+             plotbar(csvdata);
+        });
+      }
+      if(this.value == "ds5"){
+        d3.csv("pokemondata.csv", parser,
+            function(error, csvdata) {
+             plotbar(csvdata);
+        });
+      }
+      if(this.value == "ds6"){
+        d3.csv("pokemondata.csv", parser,
+            function(error, csvdata) {
+             plotbar(csvdata);
+        });
+      }
+      if(this.value == "ds7"){
+        d3.csv("pokemondata.csv", parser,
+            function(error, csvdata) {
+             plotbar(csvdata);
+        });
+      }
+    });
+    </script>
+    <div id="pokemon" class="graph"></div>
+
+  </body>
+</html>
